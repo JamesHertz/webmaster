@@ -1,27 +1,26 @@
 package record
 
 import (
-	"errors"
 	"encoding/json"
+	"errors"
+	"fmt"
 
 	cidlib "github.com/ipfs/go-cid"
 )
 
 const (
-	NORMAL_IPFS ProvType = iota
+	NORMAL_IPFS uint = iota
 	SECURE_IPFS
 )
 
-type ProvType int
-
 type CidRecord struct {
 	Cid          cidlib.Cid `json:"cid"`
-	ProviderType ProvType   `json:"provtype"`
+	ProviderType uint       `json:"provtype"`
 }
 
-var InvalidProviderType = errors.New("Invalid provider type.")
+var ErrInvalidProviderType = errors.New("Invalid provider type.")
 
-func NewCidRecord(cid string, ptype ProvType) (*CidRecord, error) {
+func NewCidRecord(cid string, ptype uint) (*CidRecord, error) {
 	value, err := cidlib.Decode(cid)
 	if err != nil {
 		return nil, err
@@ -34,11 +33,46 @@ func NewCidRecord(cid string, ptype ProvType) (*CidRecord, error) {
 			ProviderType: ptype,
 		}, nil
 	default:
-		return nil, InvalidProviderType
+		return nil, ErrInvalidProviderType
 	}
 }
 
-
-func (rec * CidRecord) Marshall() ([]byte, error) {
+func (rec *CidRecord) Marshall() ([]byte, error) {
 	return json.Marshal(rec)
+}
+
+func Unmarshall(data []byte) (*CidRecord, error) {
+	res := CidRecord{}
+	if err := json.Unmarshal(data, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (rec * CidRecord) UnmarshalJSON(data []byte) error {
+	obj := struct{
+		Cid string 
+		Provtype uint
+	}{}
+
+	err := json.Unmarshal(data, &obj)
+	if err != nil {
+		return err
+	}
+	fmt.Println("obj: ", obj)
+
+	aux, err := NewCidRecord(obj.Cid, obj.Provtype)
+	if err != nil {
+		return err
+	}
+
+	rec.Cid, rec.ProviderType = aux.Cid, aux.ProviderType
+	return nil
+}
+
+
+func (rec CidRecord) MarshalJSON() ([]byte, error){
+	return []byte(fmt.Sprintf(
+		`{"cid":"%s","provtype":%d}`, rec.Cid.String(), rec.ProviderType),
+	), nil
 }
