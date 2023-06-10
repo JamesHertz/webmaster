@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	NORMAL_IPFS uint = iota
+	NORMAL_IPFS uint = iota + 1
 	SECURE_IPFS
 )
 
@@ -49,9 +49,9 @@ func Unmarshall(data []byte) (*CidRecord, error) {
 	return &res, nil
 }
 
-func (rec * CidRecord) UnmarshalJSON(data []byte) error {
-	obj := struct{
-		Cid string 
+func (rec *CidRecord) UnmarshalJSON(data []byte) error {
+	obj := struct {
+		Cid      string
 		Provtype uint
 	}{}
 
@@ -59,7 +59,6 @@ func (rec * CidRecord) UnmarshalJSON(data []byte) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("obj: ", obj)
 
 	aux, err := NewCidRecord(obj.Cid, obj.Provtype)
 	if err != nil {
@@ -70,8 +69,7 @@ func (rec * CidRecord) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-
-func (rec CidRecord) MarshalJSON() ([]byte, error){
+func (rec CidRecord) MarshalJSON() ([]byte, error) {
 	return []byte(fmt.Sprintf(
 		`{"cid":"%s","provtype":%d}`, rec.Cid.String(), rec.ProviderType),
 	), nil

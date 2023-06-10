@@ -43,6 +43,15 @@ func TestMarshall(t *testing.T) {
 	require.True(t, rec.Cid.Equals(bk.Cid))
 
 	// ....
+	for _, ct := range []string{
+		`whatever`, `{"keys": "missing"}`,
+		`{"cid"` + cid.String() + `","provtype":"invalid"}`,
+		`{"cid"` + cid.String() + `"}`,
+		`{"provtype":0}`,
+	}{
+		_, err := Unmarshall([]byte(ct))
+		require.NotNil(t, err)
+	}
 }
 
 func newCidFailOnError(t * testing.T,  content string) cidlib.Cid {
