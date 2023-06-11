@@ -30,15 +30,18 @@ func main() {
 
 		switch r.Method {
 		case http.MethodPost:
+			log.Println("/peers POST")
 			body, _ := io.ReadAll(r.Body)
 			pi, err := peer.AddrInfoFromString(string(body))
 			if err != nil {
+				log.Printf("ERROR: Bad peerAddress: %s", string(body))
 				http.Error(w, "400 Bad Request", http.StatusBadRequest)
 				return
 			}
 
 			res := storage.MarshalPeers( st.InsertAndGetPeers(*pi) )
 			fmt.Fprint(w, res)
+			log.Printf("+new peer added (peer: %s)", pi.ID)
 		default:
 			http.NotFound(w, r)
 		}
@@ -51,16 +54,18 @@ func main() {
 			// TODO: implement this
 			http.Error(w, "501 Not Implemented", http.StatusNotImplemented)
 		case http.MethodPost:
+			log.Printf("/cids POST")
 			body, _ := io.ReadAll(r.Body)
 			rec, err := record.Unmarshall(body)
 			if err != nil {
+				log.Printf("ERROR: bad cid: %s", string(body))
 				http.Error(w, "400 Bad Request", http.StatusBadRequest)
 				return
 			}
 			st.AddCidRecord(*rec)
+			log.Printf("+new cid added: %s", rec.Cid.String())
 		default:
 			http.NotFound(w, r)
-
 		}
 	})
 
