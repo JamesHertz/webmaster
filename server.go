@@ -13,7 +13,11 @@ import (
 	// cidlib "github.com/ipfs/go-cid"
 )
 
-var PORT = 8080
+const PORT = 8080
+var (
+	PEERS_END_POINT = "/peers"
+	CIDS_END_POINT  = "/cids"
+)
 
 func main(){
     log.Printf("Starting webmaster on http://localhost:%d/", PORT)
@@ -28,7 +32,7 @@ func main(){
 		}
 	})
 
-	http.HandleFunc("/peers", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc(PEERS_END_POINT, func(w http.ResponseWriter, r *http.Request) {
 
 		switch r.Method{
 		case http.MethodPost:
@@ -51,7 +55,7 @@ func main(){
 
 	})
 
-	http.HandleFunc("/cids", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc(CIDS_END_POINT, func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method{
 		case http.MethodGet:
 			// TODO: implement this
