@@ -22,33 +22,34 @@ func main(){
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodGet {
-			fmt.Fprintf(w, "You get it :)")
+			fmt.Fprintf(w, "server running :)")
 		} else {
 			http.NotFound(w, r)
 		}
 	})
 
-	http.HandleFunc("/pids", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost {
+	http.HandleFunc("/peers", func(w http.ResponseWriter, r *http.Request) {
+
+		switch r.Method{
+		case http.MethodPost:
+		    body, _ := io.ReadAll(r.Body)
+		    pi, err := peer.AddrInfoFromString(string(body))
+		    if err != nil {
+		    	http.Error(w, "400 Bad Request", http.StatusBadRequest)
+		    	return
+		    }
+
+		    res, _ := json.Marshal(st.InsertAndGetPids(*pi)) // by now :)
+
+		    // todo: marshall res and send it back :)
+		    // todo: check if this is really okay
+		    fmt.Fprint(w, res)
+		default:
 			http.NotFound(w, r)
-			return
 		}
 
-		body, _ := io.ReadAll(r.Body)
-		pid, err := peer.Decode(string(body))
-		if err != nil {
-			http.Error(w, "400 Bad Request", http.StatusBadRequest)
-			return
-		}
 
-		res, _ := json.Marshal(st.InsertAndGetPids(pid))
-
-		// todo: marshall res and send it back :)
-		// todo: check if this is really okay
-		fmt.Fprint(w, res)
 	})
-
-
 
 	http.HandleFunc("/cids", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method{

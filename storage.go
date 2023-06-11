@@ -10,27 +10,28 @@ import (
 const K = 10
 
 type ServerStorage struct {
-	pids []peer.ID
-	cids []record.CidRecord
+	peers []peer.AddrInfo
+	cids  []record.CidRecord
 	lck  sync.RWMutex
 }
 
 func newServerStorage() *ServerStorage {
 	return &ServerStorage{
-		pids: []peer.ID{},
+		peers: []peer.AddrInfo{},
 		cids: []record.CidRecord{},
 		lck:  sync.RWMutex{},
 	}
 }
 
-func (st *ServerStorage) InsertAndGetPids(pid peer.ID) []peer.ID {
+func (st *ServerStorage) InsertAndGetPids(peer peer.AddrInfo) []peer.AddrInfo {
 	st.lck.Lock()
 	defer st.lck.Unlock()
 
-	st.pids = append(st.pids, pid)
-	lastIdx := len(st.pids) - 1
-	st.pids[0], st.pids[lastIdx] = st.pids[lastIdx], st.pids[0]
-	return st.pids[1 : K+1]
+
+	st.peers = append(st.peers, peer)
+	lastIdx := len(st.peers) - 1
+	st.peers[0], st.peers[lastIdx] = st.peers[lastIdx], st.peers[0]
+	return st.peers[1 : K+1]
 }
 
 func (st *ServerStorage) AddCidRecord(rec record.CidRecord) {
