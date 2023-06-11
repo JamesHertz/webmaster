@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -9,20 +8,15 @@ import (
 
 	"github.com/JamesHertz/webmaster/record"
 	"github.com/libp2p/go-libp2p/core/peer"
-	// peer "github.com/libp2p/go-libp2p/core/peer"
-	// cidlib "github.com/ipfs/go-cid"
+	"github.com/JamesHertz/webmaster/storage"
 )
 
 const PORT = 8080
-var (
-	PEERS_END_POINT = "/peers"
-	CIDS_END_POINT  = "/cids"
-)
 
-func main(){
-    log.Printf("Starting webmaster on http://localhost:%d/", PORT)
+func main() {
+	log.Printf("Starting webmaster on http://localhost:%d/", PORT)
 
-	st := newServerStorage()
+	st := storage.NewServerStorage()
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodGet {
@@ -32,40 +26,36 @@ func main(){
 		}
 	})
 
-	http.HandleFunc(PEERS_END_POINT, func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/peers", func(w http.ResponseWriter, r *http.Request) {
 
-		switch r.Method{
+		switch r.Method {
 		case http.MethodPost:
-		    body, _ := io.ReadAll(r.Body)
-		    pi, err := peer.AddrInfoFromString(string(body))
-		    if err != nil {
-		    	http.Error(w, "400 Bad Request", http.StatusBadRequest)
-		    	return
-		    }
+			body, _ := io.ReadAll(r.Body)
+			pi, err := peer.AddrInfoFromString(string(body))
+			if err != nil {
+				http.Error(w, "400 Bad Request", http.StatusBadRequest)
+				return
+			}
 
-		    res, _ := json.Marshal(st.InsertAndGetPids(*pi)) // by now :)
-
-		    // todo: marshall res and send it back :)
-		    // todo: check if this is really okay
-		    fmt.Fprint(w, res)
+			res := storage.MarshalPeers( st.InsertAndGetPeers(*pi) )
+			fmt.Fprint(w, res)
 		default:
 			http.NotFound(w, r)
 		}
 
-
 	})
 
-	http.HandleFunc(CIDS_END_POINT, func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method{
+	http.HandleFunc("/cids", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
 		case http.MethodGet:
 			// TODO: implement this
 			http.Error(w, "501 Not Implemented", http.StatusNotImplemented)
 		case http.MethodPost:
-			body, _  := io.ReadAll(r.Body)
+			body, _ := io.ReadAll(r.Body)
 			rec, err := record.Unmarshall(body)
 			if err != nil {
 				http.Error(w, "400 Bad Request", http.StatusBadRequest)
-				return;
+				return
 			}
 			st.AddCidRecord(*rec)
 		default:
@@ -73,7 +63,6 @@ func main(){
 
 		}
 	})
-
 
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", PORT), nil); err != nil {
 		log.Fatal(err)
