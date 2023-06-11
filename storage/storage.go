@@ -29,10 +29,9 @@ func (st *ServerStorage) InsertAndGetPeers(peer peer.AddrInfo) []peer.AddrInfo {
 	st.lck.Lock()
 	defer st.lck.Unlock()
 
-	st.peers = append(st.peers, peer)
-	lastIdx := len(st.peers) - 1
-	st.peers[0], st.peers[lastIdx] = st.peers[lastIdx], st.peers[0]
-	return st.peers[1 : K+1]
+	length   := len(st.peers)
+	st.peers  = append(st.peers, peer)
+	return st.peers[max(0,length-K):length]
 }
 
 func (st *ServerStorage) AddCidRecord(rec record.CidRecord) {
@@ -51,4 +50,13 @@ func MarshalPeers(peers []peer.AddrInfo) []byte {
 
 	data, _ := json.Marshal(aux)
 	return data
+}
+
+
+// some utils function
+func max(x, y int) int{
+	if x >= y {
+		return x
+	}
+	return y
 }
