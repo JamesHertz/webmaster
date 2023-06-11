@@ -1,17 +1,18 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 
 	"github.com/JamesHertz/webmaster/record"
-	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/JamesHertz/webmaster/storage"
+	"github.com/libp2p/go-libp2p/core/peer"
 )
 
-const PORT = 8080
+const PORT = 80
 
 func main() {
 	log.Printf("Starting webmaster on http://localhost:%d/", PORT)
@@ -39,8 +40,8 @@ func main() {
 				return
 			}
 
-			res := storage.MarshalPeers( st.InsertAndGetPeers(*pi) )
-			fmt.Fprint(w, res)
+			res := storage.MarshalPeers(st.InsertAndGetPeers(*pi))
+			fmt.Fprint(w, string(res))
 			log.Printf("+new peer added (peer: %s)", pi.ID)
 		default:
 			http.NotFound(w, r)
@@ -56,14 +57,15 @@ func main() {
 		case http.MethodPost:
 			log.Printf("/cids POST")
 			body, _ := io.ReadAll(r.Body)
-			rec, err := record.Unmarshall(body)
-			if err != nil {
-				log.Printf("ERROR: bad cid: %s", string(body))
+			recs := []record.CidRecord{}
+			err := json.Unmarshal(body, &recs)
+			if err != nil || len(recs) == 0 {
+				log.Printf("ERROR: bad cids or none cids: %s", string(body))
 				http.Error(w, "400 Bad Request", http.StatusBadRequest)
 				return
 			}
-			st.AddCidRecord(*rec)
-			log.Printf("+new cid added: %s", rec.Cid.String())
+			st.AddCidRecord(recs...)
+			log.Printf("+%d cid added", len(recs))
 		default:
 			http.NotFound(w, r)
 		}

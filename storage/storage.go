@@ -34,9 +34,9 @@ func (st *ServerStorage) InsertAndGetPeers(peer peer.AddrInfo) []peer.AddrInfo {
 	return st.peers[max(0,length-K):length]
 }
 
-func (st *ServerStorage) AddCidRecord(rec record.CidRecord) {
+func (st *ServerStorage) AddCidRecord(recs ...record.CidRecord) {
 	st.lck.Lock()
-	st.cids = append(st.cids, rec)
+	st.cids = append(st.cids, recs...)
 	st.lck.Unlock()
 }
 

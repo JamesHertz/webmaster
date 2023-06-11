@@ -41,14 +41,6 @@ func (rec *CidRecord) Marshall() ([]byte, error) {
 	return json.Marshal(rec)
 }
 
-func Unmarshall(data []byte) (*CidRecord, error) {
-	res := CidRecord{}
-	if err := json.Unmarshal(data, &res); err != nil {
-		return nil, err
-	}
-	return &res, nil
-}
-
 func (rec *CidRecord) UnmarshalJSON(data []byte) error {
 	obj := struct {
 		Cid      string

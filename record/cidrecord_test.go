@@ -1,6 +1,7 @@
 package record
 
 import (
+	"encoding/json"
 	"testing"
 
 	cidlib "github.com/ipfs/go-cid"
@@ -36,7 +37,7 @@ func TestMarshall(t *testing.T) {
 	val, err := rec.Marshall()
 	require.Nil(t, err)
 
-	bk, err := Unmarshall([]byte(val))
+	bk, err := unmarshall([]byte(val))
 	require.Nil(t, err)
 
 	require.Equal(t, rec.ProviderType, bk.ProviderType)
@@ -49,7 +50,7 @@ func TestMarshall(t *testing.T) {
 		`{"cid"` + cid.String() + `"}`,
 		`{"provtype":0}`,
 	}{
-		_, err := Unmarshall([]byte(ct))
+		_, err := unmarshall([]byte(ct))
 		require.NotNil(t, err)
 	}
 }
@@ -58,4 +59,12 @@ func newCidFailOnError(t * testing.T,  content string) cidlib.Cid {
 	mh, err := multihash.Sum([]byte(content), multihash.SHA2_256, -1)
 	require.Nil(t, err)
 	return cidlib.NewCidV0(mh)
+}
+
+func unmarshall(data []byte) (*CidRecord, error){
+	rec := CidRecord{}
+	if err := json.Unmarshal(data, &rec); err != nil {
+		return nil, err
+	}
+	return &rec, nil
 }
