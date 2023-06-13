@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math/rand"
 	"net/http"
+	"time"
 
 	"github.com/JamesHertz/webmaster/record"
 	"github.com/JamesHertz/webmaster/storage"
@@ -15,6 +17,8 @@ import (
 const PORT = 80
 
 func main() {
+	rand.Seed( time.Now().Unix() )
+
 	log.Printf("Starting webmaster on http://localhost:%d/", PORT)
 
 	st := storage.NewServerStorage()
@@ -30,6 +34,8 @@ func main() {
 	http.HandleFunc("/peers", func(w http.ResponseWriter, r *http.Request) {
 
 		switch r.Method {
+		case http.MethodGet:
+			http.Error(w, "501 Not Implemented", http.StatusNotImplemented)
 		case http.MethodPost:
 			log.Println("/peers POST")
 			body, _ := io.ReadAll(r.Body)
@@ -52,8 +58,10 @@ func main() {
 	http.HandleFunc("/cids", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
-			// TODO: implement this
-			http.Error(w, "501 Not Implemented", http.StatusNotImplemented)
+			log.Printf("/cids GET")
+			res := st.GetRandomRecords()
+			data, _ := json.Marshal(res)	
+			fmt.Fprint(w, string(data))
 		case http.MethodPost:
 			log.Printf("/cids POST")
 			body, _ := io.ReadAll(r.Body)

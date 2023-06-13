@@ -9,7 +9,8 @@ import (
 )
 
 const (
-	NORMAL_IPFS uint = iota + 1
+	DEFAULT_IPFS uint = iota + 1
+	NORMAL_IPFS 
 	SECURE_IPFS
 )
 
@@ -27,7 +28,7 @@ func NewCidRecord(cid string, ptype uint) (*CidRecord, error) {
 	}
 
 	switch ptype {
-	case SECURE_IPFS, NORMAL_IPFS:
+	case SECURE_IPFS, NORMAL_IPFS, DEFAULT_IPFS:
 		return &CidRecord{
 			Cid:          value,
 			ProviderType: ptype,
