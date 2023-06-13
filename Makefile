@@ -4,8 +4,9 @@ BIN := $(BIN_DIR)/master
 
 all: $(BIN)
 
-$(BIN): $(BIN_DIR) ./**/*.go
+$(BIN): ./**/*.go
 	go build -o $@ $(MODULE)
 
-$(BIN_DIR):
-	mkdir -p $@
+.PHONNY: clean
+clean:
+	@rm -rf $(BIN_DIR)

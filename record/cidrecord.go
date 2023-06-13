@@ -8,11 +8,11 @@ import (
 	cidlib "github.com/ipfs/go-cid"
 )
 
-type IpfsMode uint
+type IpfsMode int
 
 const (
-	DEFAULT_IPFS IpfsMode = iota + 1
-	NORMAL_IPFS
+	NONE        IpfsMode = -1 // used in ipfs-client
+	NORMAL_IPFS IpfsMode = iota + 1
 	SECURE_IPFS
 )
 
@@ -30,7 +30,7 @@ func NewCidRecord(cid string, ptype IpfsMode) (*CidRecord, error) {
 	}
 
 	switch ptype {
-	case SECURE_IPFS, NORMAL_IPFS, DEFAULT_IPFS:
+	case SECURE_IPFS, NORMAL_IPFS:
 		return &CidRecord{
 			Cid:          value,
 			ProviderType: ptype,
@@ -47,7 +47,7 @@ func (rec *CidRecord) Marshall() ([]byte, error) {
 func (rec *CidRecord) UnmarshalJSON(data []byte) error {
 	obj := struct {
 		Cid      string
-		Provtype uint
+		Provtype int
 	}{}
 
 	err := json.Unmarshal(data, &obj)
