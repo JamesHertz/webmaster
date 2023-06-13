@@ -8,20 +8,22 @@ import (
 	cidlib "github.com/ipfs/go-cid"
 )
 
+type IpfsMode uint
+
 const (
-	DEFAULT_IPFS uint = iota + 1
-	NORMAL_IPFS 
+	DEFAULT_IPFS IpfsMode = iota + 1
+	NORMAL_IPFS
 	SECURE_IPFS
 )
 
 type CidRecord struct {
 	Cid          cidlib.Cid `json:"cid"`
-	ProviderType uint       `json:"provtype"`
+	ProviderType IpfsMode   `json:"provtype"`
 }
 
 var ErrInvalidProviderType = errors.New("Invalid provider type.")
 
-func NewCidRecord(cid string, ptype uint) (*CidRecord, error) {
+func NewCidRecord(cid string, ptype IpfsMode) (*CidRecord, error) {
 	value, err := cidlib.Decode(cid)
 	if err != nil {
 		return nil, err
@@ -53,7 +55,7 @@ func (rec *CidRecord) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	aux, err := NewCidRecord(obj.Cid, obj.Provtype)
+	aux, err := NewCidRecord(obj.Cid, IpfsMode(obj.Provtype))
 	if err != nil {
 		return err
 	}

@@ -14,9 +14,9 @@ func TestNewCid(t *testing.T) {
 	_, err := NewCidRecord("whatever", 0)
 	require.NotNil(t, err)
 
-	cid := newCidFailOnError(t, "a jocke");
+	cid := newCidFailOnError(t, "a jocke")
 
-	for _, ptype := range []uint{NORMAL_IPFS, SECURE_IPFS} {
+	for _, ptype := range []IpfsMode{NORMAL_IPFS, SECURE_IPFS} {
 		rec, err := NewCidRecord(cid.String(), ptype)
 		require.Nil(t, err)
 		require.True(t, rec.Cid.Equals(cid))
@@ -26,7 +26,6 @@ func TestNewCid(t *testing.T) {
 	require.Equal(t, ErrInvalidProviderType, err)
 
 }
-
 
 func TestMarshall(t *testing.T) {
 	cid := newCidFailOnError(t, "marshalling")
@@ -49,19 +48,19 @@ func TestMarshall(t *testing.T) {
 		`{"cid"` + cid.String() + `","provtype":"invalid"}`,
 		`{"cid"` + cid.String() + `"}`,
 		`{"provtype":0}`,
-	}{
+	} {
 		_, err := unmarshall([]byte(ct))
 		require.NotNil(t, err)
 	}
 }
 
-func newCidFailOnError(t * testing.T,  content string) cidlib.Cid {
+func newCidFailOnError(t *testing.T, content string) cidlib.Cid {
 	mh, err := multihash.Sum([]byte(content), multihash.SHA2_256, -1)
 	require.Nil(t, err)
 	return cidlib.NewCidV0(mh)
 }
 
-func unmarshall(data []byte) (*CidRecord, error){
+func unmarshall(data []byte) (*CidRecord, error) {
 	rec := CidRecord{}
 	if err := json.Unmarshal(data, &rec); err != nil {
 		return nil, err
