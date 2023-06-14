@@ -46,6 +46,7 @@ func main() {
 				return
 			}
 
+			// TODO: change the way this thing work :)
 			res := storage.MarshalPeers(st.InsertAndGetPeers(*pi))
 			fmt.Fprint(w, string(res))
 			log.Printf("+new peer added (peer: %s)", pi.ID)
