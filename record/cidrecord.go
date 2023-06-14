@@ -69,3 +69,17 @@ func (rec CidRecord) MarshalJSON() ([]byte, error) {
 		`{"cid":"%s","provtype":%d}`, rec.Cid.String(), rec.ProviderType),
 	), nil
 }
+
+
+func (mode IpfsMode) String() string {
+	switch mode {
+	case SECURE_IPFS:
+		return "secure"
+	case NORMAL_IPFS:
+		return "normal"
+	case NONE:
+		return "none"
+	default:
+		panic( fmt.Sprintf("Invalid ipfs mode: %d", mode) )
+	}
+}
