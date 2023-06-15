@@ -46,8 +46,7 @@ func main() {
 				return
 			}
 
-			// TODO: change the way this thing work :)
-			res := storage.MarshalPeers(st.InsertAndGetPeers(*pi))
+			res, _ := json.Marshal(st.InsertAndGetPeers(*pi))
 			fmt.Fprint(w, string(res))
 			log.Printf("+new peer added (peer: %s)", pi.ID)
 		default:
@@ -67,7 +66,7 @@ func main() {
 			log.Printf("/cids POST")
 			body, _ := io.ReadAll(r.Body)
 			recs := []record.CidRecord{}
-			err := json.Unmarshal(body, &recs)
+			err  := json.Unmarshal(body, &recs)
 			if err != nil || len(recs) == 0 {
 				log.Printf("ERROR: bad cids or none cids: %s", string(body))
 				http.Error(w, "400 Bad Request", http.StatusBadRequest)

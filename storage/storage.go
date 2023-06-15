@@ -2,7 +2,6 @@ package storage
 
 import (
 	"encoding/json"
-	"fmt"
 	"sync"
 	"math/rand"
 
@@ -72,13 +71,7 @@ func (st *ServerStorage) GetRandomRecords() []record.CidRecord{
 
 
 func MarshalPeers(peers []peer.AddrInfo) []byte {
-	aux := make([]string, len(peers))
-
-	for i, peer := range peers {
-		aux[i] = fmt.Sprintf("%s/p2p/%s",peer.Addrs[0].String(), peer.ID.Pretty())
-	}
-
-	data, _ := json.Marshal(aux)
+	data, _ := json.Marshal(peers)
 	return data
 }
 

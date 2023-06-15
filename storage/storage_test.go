@@ -13,60 +13,56 @@ import (
 
 func TestMarshalPeers(t *testing.T){
 	peers    := make([]peerlib.AddrInfo, 10)
-	expected := make([]string,  10)
 
 	for i := 0 ; i < len(peers); i++ {
 		key := fmt.Sprintf("keyword-%d", i)
 		fake_pid := genMhFailOnError(t, key)
 
-		peer_str    := fmt.Sprintf("/ip4/127.0.0.1/tcp/%d/p2p/%s", 4001+i, fake_pid)
-		peer, err   := peerlib.AddrInfoFromString( peer_str )
-
+		maddr     := fmt.Sprintf("/ip4/127.0.0.1/tcp/%d/p2p/%s", 4001+i, fake_pid)
+		peer, err := peerlib.AddrInfoFromString( maddr )
 		require.Nil(t, err)
-		peers[i]    = *peer
-		expected[i] = peer_str
+
+		peers[i]   = *peer
 	}
 
-	res := MarshalPeers(peers)
+	res, err := json.Marshal(peers)
+	require.Nil(t, err)
 
-	var back []string
+	var back []peerlib.AddrInfo
 	require.Nil(t, json.Unmarshal(res, &back))
-	require.EqualValues(t, back, expected)
+	require.EqualValues(t, peers, back)
 }
 
 func TestServerStorageInsertAndGet(t *testing.T) {
 	st    := NewServerStorage()
-	peers := make([]string, 20)
+	peers := make([]peerlib.AddrInfo, 20)
 
 	for i := 0; i < len(peers); i++ {
 		fake_pid := genMhFailOnError(t, fmt.Sprintf("myfakepid-%d", i))
-		peer := fmt.Sprintf( "/ip4/1.2.3.4/udp/%d/quic/p2p/%s", 5000+i, fake_pid)
+		maddr := fmt.Sprintf( "/ip4/1.2.3.4/udp/%d/quic/p2p/%s", 5000+i, fake_pid)
 
-		aux, err := peerlib.AddrInfoFromString(peer)
+		peer, err := peerlib.AddrInfoFromString(maddr)
 		require.Nil(t, err)
 
-		res := st.InsertAndGetPeers(*aux)
+		res := st.InsertAndGetPeers(*peer)
 
 		if i == 0 {
 			require.Empty(t, res)
 		} else {
 
-			// start = max(0, i - 10)
-			start := i - 10
+			// start = max(0, i - PIDS_K)
+			start := i - PIDS_K
 			if start < 0 {
 				start = 0
 			}
 
 			expected := peers[start:i]
 
-			var back []string
-			err = json.Unmarshal(MarshalPeers(res), &back)
-
 			require.Nil(t, err)
-			require.EqualValues(t, expected, back)
+			require.EqualValues(t, expected, res)
 		}
 
-		peers[i] = peer
+		peers[i] = *peer
 	}
 }
 
