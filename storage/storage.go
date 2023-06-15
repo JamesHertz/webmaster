@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"encoding/json"
 	"math/rand"
 	"sync"
 
@@ -69,10 +68,6 @@ func (st *ServerStorage) GetRandomRecords() []record.CidRecord {
 	return res
 }
 
-func MarshalPeers(peers []peer.AddrInfo) []byte {
-	data, _ := json.Marshal(peers)
-	return data
-}
 
 // some utils function
 func max(x, y int) int {
