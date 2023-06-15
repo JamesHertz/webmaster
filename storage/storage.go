@@ -11,7 +11,7 @@ import (
 const (
 	PidsK             = 10
 	CidsK             = 15
-	DefaultPeersSizer = 500  //1000
+	DefaultPeersSize  = 500  //1000
 	DefaultCidsSize   = 1000 //10000
 )
 
@@ -23,7 +23,7 @@ type ServerStorage struct {
 
 func NewServerStorage() *ServerStorage {
 	return &ServerStorage{
-		peers: make([]peer.AddrInfo, 0, DefaultPeersSizer),
+		peers: make([]peer.AddrInfo, 0, DefaultPeersSize),
 		cids:  make([]record.CidRecord, 0, DefaultCidsSize),
 	}
 }
