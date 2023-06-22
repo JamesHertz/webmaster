@@ -39,14 +39,15 @@ func main() {
 		case http.MethodPost:
 			log.Println("/peers POST")
 			body, _ := io.ReadAll(r.Body)
-			pi, err := peer.AddrInfoFromString(string(body))
+			pi  := peer.AddrInfo{}
+			err := json.Unmarshal(body, &pi)
 			if err != nil {
 				log.Printf("ERROR: Bad peerAddress: %s", string(body))
 				http.Error(w, "400 Bad Request", http.StatusBadRequest)
 				return
 			}
 
-			res, _ := json.Marshal(st.InsertAndGetPeers(*pi))
+			res, _ := json.Marshal(st.InsertAndGetPeers(pi))
 			fmt.Fprint(w, string(res))
 			log.Printf("+new peer added (peer: %s)", pi.ID)
 		default:

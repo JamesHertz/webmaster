@@ -10,7 +10,7 @@ import (
 
 const (
 	PidsK             = 10
-	CidsK             = 15
+	CidsK             = 5
 	DefaultPeersSize  = 500  //1000
 	DefaultCidsSize   = 1000 //10000
 )
