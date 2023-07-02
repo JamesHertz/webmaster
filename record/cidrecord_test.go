@@ -23,7 +23,7 @@ func TestNewCid(t *testing.T) {
 	}
 
 	_, err = NewCidRecord(cid.String(), 100)
-	require.Equal(t, ErrInvalidProviderType, err)
+	require.Equal(t, ErrInvalidIpfsMode, err)
 
 }
 

@@ -11,7 +11,7 @@ import (
 type IpfsMode int
 
 const (
-	NONE        IpfsMode = -1 // used in ipfs-client
+	NONE        IpfsMode = -1 
 	NORMAL_IPFS IpfsMode = iota + 1
 	SECURE_IPFS
 )
@@ -21,7 +21,7 @@ type CidRecord struct {
 	ProviderType IpfsMode   `json:"provtype"`
 }
 
-var ErrInvalidProviderType = errors.New("Invalid provider type.")
+var ErrInvalidIpfsMode = errors.New("Invalid ipfs mode.")
 
 func NewCidRecord(cid string, ptype IpfsMode) (*CidRecord, error) {
 	value, err := cidlib.Decode(cid)
@@ -29,15 +29,14 @@ func NewCidRecord(cid string, ptype IpfsMode) (*CidRecord, error) {
 		return nil, err
 	}
 
-	switch ptype {
-	case SECURE_IPFS, NORMAL_IPFS:
-		return &CidRecord{
-			Cid:          value,
-			ProviderType: ptype,
-		}, nil
-	default:
-		return nil, ErrInvalidProviderType
+	if err := ptype.Validate(); err != nil {
+		return nil, err
 	}
+
+	return &CidRecord{
+		Cid:          value,
+		ProviderType: ptype,
+	}, nil
 }
 
 func (rec *CidRecord) Marshall() ([]byte, error) {
@@ -70,6 +69,14 @@ func (rec CidRecord) MarshalJSON() ([]byte, error) {
 	), nil
 }
 
+func (mode IpfsMode) Validate() error {
+	switch mode {
+	case SECURE_IPFS, NORMAL_IPFS, NONE:
+		return nil
+	default:
+		return ErrInvalidIpfsMode
+	}
+}
 
 func (mode IpfsMode) String() string {
 	switch mode {
@@ -80,6 +87,6 @@ func (mode IpfsMode) String() string {
 	case NONE:
 		return "none"
 	default:
-		panic( fmt.Sprintf("Invalid ipfs mode: %d", mode) )
+		panic(fmt.Sprintf("Invalid ipfs mode: %d", mode))
 	}
 }
