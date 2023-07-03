@@ -34,8 +34,6 @@ func main() {
 	http.HandleFunc("/peers", func(w http.ResponseWriter, r *http.Request) {
 
 		switch r.Method {
-		case http.MethodGet:
-			http.Error(w, "501 Not Implemented", http.StatusNotImplemented)
 		case http.MethodPost:
 			log.Println("/peers POST")
 			body, _ := io.ReadAll(r.Body)
